@@ -1,0 +1,32 @@
+{
+    "name": "cordova-plugin-kh-foreground-service",
+    "version": "1.0.1",
+    "description": "KeylessHome foreground service.",
+    "cordova": {
+      "id": "cordova-plugin-kh-foreground-service",
+      "platforms": [
+        "android"
+      ]
+    },
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/orgixmh/cordova-plugin-kh-foreground-service"
+    },
+    "keywords": [
+      "cordova",
+      "android",
+      "kh",
+      "background",
+      "foreground",
+      "service",
+      "ecosystem:cordova",
+      "cordova-android"
+    ],
+    "author": "Konstantinos Nikas",
+    "license": "MIT",
+    "bugs": {
+      "url": "https://github.com/orgixmh/cordova-plugin-kh-foreground-service/issues"
+    },
+    "homepage": "https://github.com/orgixmh/cordova-plugin-kh-foreground-service"
+  }
+  
