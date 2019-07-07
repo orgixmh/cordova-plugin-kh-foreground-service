@@ -5,8 +5,6 @@ import android.content.Context;
 import android.app.Service;
 import android.os.IBinder;
 import android.os.Bundle;
-import com.nks.kh.*;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,7 +22,7 @@ public class KHForegroundService extends Service {
     Notifications notifications = new Notifications();
     private boolean looperStateEmu = false; //for emulation only
     private boolean looperState = false;
-    private final static String TAG = ForegroundService.class.getSimpleName();
+    private final static String TAG = KHForegroundService.class.getSimpleName();
     private final long timeInterval = 60000;
 
     @Override
