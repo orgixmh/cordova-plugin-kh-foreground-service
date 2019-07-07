@@ -1,16 +1,16 @@
 # cordova-plugin-kh-foreground-service 
 ---
 
-This plugin allows for android devices to continue running services in the background, using a foreground ongoing notification. This is targeted towards use with plugins such as 'cordova-geolocation' that will not run while the app is in the background on android API 21+.
+This plugin allows for android devices to continue running services in the background, using a foreground ongoing notification. This is targeted towards use with plugins such as 'cordova-geolocation' that will not run while the app is in the background on android API 19+.
 
 ---
 
 ## Requirements
 
-- com.nks.kh >= 1.0.0
+- com.nks.kh >= 0.800
 - cordova version >= 8.0.0
 - cordova-android version >= 6.0.0
-- android-sdk api >= 21
+- android-sdk api >= 19
 
 ---
 
