@@ -18,6 +18,12 @@
 		<source-file src="src/NotificationsListener.java" target-dir="src/com/nks/khforeground" />
 		<source-file src="src/SharedObject.java" target-dir="src/com/nks/khforeground" />		
 
+		<resource-file src="res/android/drawable-hdpi/kh_notification.png" target="res/drawable-hdpi/kh_notification.png"/>
+		<resource-file src="res/android/drawable-mdpi/kh_notification.png" target="res/drawable-mdpi/kh_notification.png"/>
+		<resource-file src="res/android/drawable-xhdpi/kh_notification.png" target="res/drawable-xhdpi/kh_notification.png"/>
+		<resource-file src="res/android/drawable-xxhdpi/kh_notification.png" target="res/drawable-xxhdpi/kh_notification.png"/>
+		<resource-file src="res/android/drawable-xxxhdpi/kh_notification.png" target="res/drawable-xxxhdpi/kh_notification.png"/>
+
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
             <service android:name="com.nks.khforeground.KHForegroundService" android:stopWithTask="false" android:process=":KHForegroundService"/>
 	    <service android:name="com.nks.khforeground.NotificationsListener" android:exported="false"/>			
