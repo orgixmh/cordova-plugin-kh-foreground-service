@@ -20,6 +20,7 @@
 
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
             <service android:name="com.nks.khforeground.KHForegroundService" android:stopWithTask="false" android:process=":KHForegroundService"/>
+	    <service android:name="com.nks.khforeground.NotificationsListener" android:exported="false"/>			
         </config-file>
         <config-file target="config.xml" parent="/*">
             <feature name="KHForegroundPlugin">
