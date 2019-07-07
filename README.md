@@ -33,10 +33,10 @@ To enable the foreground service, call the `start` method:
 ```javascript
 
 //Start service
-cordova.plugins.foregroundService.start('Foreground Service Running Message', 'Device found message');
+cordova.plugins.KhforegroundService.start('Foreground Service Running Message', 'Device found message');
 
 //Check for pending notification requests
-cordova.plugins.foregroundService.check(SUCCESS_CALLBACK, FAILED_CALLBACK);
+cordova.plugins.KhforegroundService.check(SUCCESS_CALLBACK, FAILED_CALLBACK);
 
 ```
 
@@ -45,7 +45,7 @@ cordova.plugins.foregroundService.check(SUCCESS_CALLBACK, FAILED_CALLBACK);
 To disable the foreground service, call the `stop` method:
 
 ```javascript
-cordova.plugins.foregroundService.stop();
+cordova.plugins.KhforegroundService.stop();
 ```
 
 ---
