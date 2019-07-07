@@ -1,4 +1,3 @@
-cordova.define("cordova-plugin-kh-foreground-service.KHForegroundService", function(require, exports, module) {
 var exec = require('cordova/exec');
 
 module.exports = {
@@ -12,4 +11,3 @@ module.exports = {
     exec(null, null, "KHForegroundPlugin", "stop", []);
   }
 };
-});
