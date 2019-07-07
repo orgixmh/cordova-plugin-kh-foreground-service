@@ -8,14 +8,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import android.os.Build;
-import com.nks.kh.SharedObject;
 
 public class KHForegroundPlugin extends CordovaPlugin {
     @Override
     public boolean execute (final String action, final JSONArray args, final CallbackContext command) throws JSONException {
 
             Activity activity = cordova.getActivity();
-            Intent intent = new Intent(activity, ForegroundService.class);
+            Intent intent = new Intent(activity, KHForegroundService.class);
 
             switch(action)
             {
