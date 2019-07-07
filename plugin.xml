@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" id="cordova-plugin-kh-foreground-service" version="1.0.1">
     <name>Cordova KeylessHome Foreground Service</name>
     <description>KeylessHome foreground service.</description>
-    <license>MIT</license>
+    <license> </license>
     <author>Konstantinos Nikas</author>
     <repo>https://github.com/orgixmh/cordova-plugin-kh-foreground-service</repo>
     <keywords>cordova,background,foreground,service,kh</keywords>
@@ -12,11 +12,17 @@
     <platform name="android">
         <source-file src="src/KHForegroundPlugin.java" target-dir="src/com/nks/khforeground" />
         <source-file src="src/KHForegroundService.java" target-dir="src/com/nks/khforeground" />
+		<source-file src="src/bleScanner.java" target-dir="src/com/nks/khforeground" />
+		<source-file src="src/CallbacksHelper.java" target-dir="src/com/nks/khforeground" />
+		<source-file src="src/Notifications.java" target-dir="src/com/nks/khforeground" />
+		<source-file src="src/NotificationsListener.java" target-dir="src/com/nks/khforeground" />
+		<source-file src="src/SharedObject.java" target-dir="src/com/nks/khforeground" />		
+
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
-            <service android:name="com.nks.khforeground.KHForegroundService" android:stopWithTask="true"/>
+            <service android:name="com.nks.khforeground.KHForegroundService" android:stopWithTask="false" android:process=":KHForegroundService"/>
         </config-file>
         <config-file target="config.xml" parent="/*">
-            <feature name="ForegroundPlugin">
+            <feature name="KHForegroundPlugin">
                 <param name="android-package" value="com.nks.khforeground.KHForegroundPlugin" />
             </feature>
         </config-file>

@@ -23,7 +23,7 @@
       "cordova-android"
     ],
     "author": "Konstantinos Nikas",
-    "license": "MIT",
+    "license": "",
     "bugs": {
       "url": "https://github.com/orgixmh/cordova-plugin-kh-foreground-service/issues"
     },
