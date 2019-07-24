@@ -23,7 +23,7 @@ public class KHForegroundService extends Service {
     private boolean looperStateEmu = false; //for emulation only
     private boolean looperState = false;
     private final static String TAG = KHForegroundService.class.getSimpleName();
-    private final long timeInterval = 60000;
+    private final long timeInterval = 8000;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
