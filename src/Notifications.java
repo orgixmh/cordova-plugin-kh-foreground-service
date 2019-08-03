@@ -7,8 +7,10 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 
 import com.nks.kh.R;
 
@@ -69,16 +71,15 @@ public class Notifications {
 
         //Save foreground notification data for later use
         this.foregroundNotification = serviceNotification;
-
+        cleanNotificationIDs(2);
         //Returning notification back to the service controller
         return serviceNotification;
     }
 
 
+    public void cleanNotificationIDs(int startID){
 
-    private void cleanNotificationIDs(int startID){
-
-        System.out.println("Notifications from id "+ startID + " removed");
+        System.out.println("REMOVING NOTIFICATIONS WITH ID BIGGER THAN "+ startID +".");
         while(startID < 10){
             //if (notificationExist(startID)){
                 removeNotification(startID);
@@ -89,25 +90,47 @@ public class Notifications {
         }
 
     }
-
+    public Notification getActiveNotification(int notificationId) {
+        StatusBarNotification[] barNotifications = manager.getActiveNotifications();
+        for(StatusBarNotification notification: barNotifications) {
+            if (notification.getId() == notificationId) {
+                return notification.getNotification();
+            }
+        }
+        return null;
+    }
     public void sendNotifications(JSONArray scanPool){
-        System.out.println("ScanPool Length:"+scanPool.length());
         if (scanPool.length()>=1) {
 
-            int f = 1;
+            int currentID = 1;
             for (int n=0; n < scanPool.length(); n++) {
                 try {
-                    JSONObject scanObject = scanPool.getJSONObject(n);
-                    f = n+1;
-                    scanObject.put("ID", f);
+                    JSONObject scanObject = scanPool.getJSONObject(scanPool.length() - n -1);
+                    currentID = n+1;
+                    scanObject.put("ID", currentID);
                     scanObject.put("TYPE", DEVICE_NOTIFICATION);
+                    boolean sendNotification = true;
                     Notification deviceNotification = createNotification(scanObject);
+                    Notification currentIdNotification = getActiveNotification(currentID);
                     if (deviceNotification!= null) {
-                        manager.notify(f, deviceNotification);
+                        if (currentIdNotification != null) {
+                            String notMac = currentIdNotification.extras.getString("unlockDeviceMac");
+                            String devMac = scanObject.getString("MAC");
+                            if (notMac != null && devMac!=null){
+                                if ( notMac.equals(devMac)) {
+                                     sendNotification = false;
+                                     //System.out.println("ABORT NOTIFICATION SEND (EXIST WITH SAME ID: "+currentID+")");
+                                }
+                            }
+                        }
                     }else{
-                        System.out.println("---> WARING NULL NOTIFICATION" );
+                        sendNotification = false;
                     }
-                    scanPool.put(n, scanObject);
+                    if (sendNotification){
+                        //System.out.println("SENDIND NOTIFICATION WITH ID: "+currentID);
+                        manager.notify(currentID, deviceNotification);
+                    }
+                    scanPool.put(scanPool.length() - n -1, scanObject);
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -115,7 +138,7 @@ public class Notifications {
 
             }
             //Clean stucked nots
-            cleanNotificationIDs(f+1);
+            cleanNotificationIDs(currentID+1);
         }else{
             manager.notify(1 , foregroundNotification);
             cleanNotificationIDs(2);
@@ -131,27 +154,10 @@ public class Notifications {
     }
 
 
-    private boolean notificationExist(int notificationID){
-
-        boolean isExist = false;
-        if (Build.VERSION.SDK_INT >= 26) {
-            StatusBarNotification[] notifications = manager.getActiveNotifications();
-            for (StatusBarNotification notification : notifications) {
-
-                if (notification.getId() == notificationID) {
-                    isExist = true;
-                } else {
-                    isExist = false;
-                }
-            }
-        }
-
-        return isExist;
-    }
-
 
     public Notification createNotification(JSONObject notificationData){
         Notification notification = null;
+
         try{
 
             //Initialize notification needed variables
@@ -165,6 +171,7 @@ public class Notifications {
             Intent notificationIntent = new Intent(mContext, NotificationsListener.class);
             int pendingIndentAction = PendingIntent.FLAG_UPDATE_CURRENT;
 
+
             if (notType==FOREGROUND_NOTIFICATION){
 
                 notBody = notificationData.getString("NAME");
@@ -174,7 +181,7 @@ public class Notifications {
                 notificationIntent.putExtra("type", FOREGROUND_NOTIFICATION);
 
                 pendingIndentAction = PendingIntent.FLAG_UPDATE_CURRENT;
-
+                System.out.println("NOTIFICATION ("+notificationID+")-> notType"+notType);
 
             }else{
 
@@ -188,7 +195,7 @@ public class Notifications {
                 notificationIntent.putExtra("unlockDeviceName", notName);
                 notificationIntent.putExtra("type", DEVICE_NOTIFICATION);
 
-
+                System.out.println("NOTIFICATION ("+notificationID+")-> notType"+notType +"  NAME:"+notName+"  MAC:" +notMac);
             }
 
             notificationData.put("ID",notificationID );
@@ -222,6 +229,10 @@ public class Notifications {
                 notification = builder.build();
             }
             notification.flags = Notification.FLAG_ONLY_ALERT_ONCE;
+
+            if (notType==DEVICE_NOTIFICATION) {
+                notification.extras.putString("unlockDeviceMac", notificationData.getString("MAC"));
+            }
 
             return notification;
         }
