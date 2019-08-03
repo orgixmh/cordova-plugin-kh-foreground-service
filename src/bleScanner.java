@@ -6,6 +6,8 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
+import android.os.Build;
+
 import com.megster.cordova.ble.central.*;
 import org.apache.cordova.PluginResult;
 import java.util.Iterator;
@@ -29,7 +31,7 @@ public class bleScanner implements BluetoothAdapter.LeScanCallback {
     private Map<String, Peripheral> peripherals = new LinkedHashMap<String, Peripheral>();
 
 
-    public boolean execute(String action, Context context, CallbacksHelper mListener) {
+        public boolean execute(String action, Context context, CallbacksHelper mListener) {
         this.mListener = mListener;
 
 
@@ -49,7 +51,7 @@ public class bleScanner implements BluetoothAdapter.LeScanCallback {
 
         if (action.equals("SCAN")) {
             scan();
-        } else if (action.equals(STOP_SCAN)) {
+        } else  {
             bluetoothAdapter.stopLeScan(this);
         }
         return true;
@@ -77,10 +79,14 @@ public class bleScanner implements BluetoothAdapter.LeScanCallback {
         UUID khuuid = UUID.fromString("6E400001-B5A3-F393-E0A9-E50E24DCCA9E");
         UUID[] uuids = new UUID[1];
         uuids[0]=khuuid;
-        bluetoothAdapter.startLeScan(uuids, this);
-        //bluetoothAdapter.startLeScan(this);
+        if (Build.VERSION.SDK_INT >= 26) {
+            bluetoothAdapter.startLeScan(uuids, this);
+        }else{
+            bluetoothAdapter.startLeScan(this);
+        }
 
-        if (timeInterval > 0) {
+
+        if (timeInterval < 0) {
             new java.util.Timer().schedule(
                     new java.util.TimerTask() {
                         @Override
@@ -112,7 +118,6 @@ public class bleScanner implements BluetoothAdapter.LeScanCallback {
 
             if (mListener != null) {
                 mListener.onCallback(peripheral.asJSONObject());
-                System.out.println(peripheral.asJSONObject());
             }else{
                 System.out.println("bleScanner -> mListener is null, callBack attach faild.");
             }
