@@ -156,17 +156,6 @@ public class KHForegroundService extends Service {
                     scannedDevice.remove("advertising"); //Removing advertising data
                     blePool.put(scannedDevice);
                     notifications.sendNotifications(blePool);
-                }else{
-                    scannedDevice.put("MAC", scannedDevice.getString("id"));
-                    scannedDevice.put("NAME", "UNKNO");
-                    scannedDevice.put("RSSI", scannedDevice.getString("rssi"));
-                    scannedDevice.remove("id");
-                    scannedDevice.remove("name");
-                    scannedDevice.remove("rssi");
-                    scannedDevice.remove("advertising"); //Removing advertising data
-
-                    blePool.put(scannedDevice);
-                    notifications.sendNotifications(blePool);
                 }
             }
 
