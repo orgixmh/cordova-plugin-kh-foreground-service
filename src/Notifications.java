@@ -54,7 +54,7 @@ public class Notifications {
 
 
         // Get notification channel importance
-        int importance = NotificationManager.IMPORTANCE_HIGH;
+        int importance = NotificationManager.IMPORTANCE_NONE;
 
 
         // Create notification channel
