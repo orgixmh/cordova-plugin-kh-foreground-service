@@ -42,7 +42,9 @@ public class KHForegroundPlugin extends CordovaPlugin {
 
                 // Pass the notification title/text/icon to the service
                 intent.putExtra("foregroundMessage", args.getString(0))
-                        .putExtra("unlockMessage", args.getString(1));
+                      .putExtra("foregroundDevices", args.getString(2))
+                      .putExtra("unlockMessage", args.getString(1));
+
 
                 // Finally start the service
                 if (isServiceRunningInForeground(activity.getApplicationContext(),KHForegroundService.class)) {
