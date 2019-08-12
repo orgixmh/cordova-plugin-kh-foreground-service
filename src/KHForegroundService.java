@@ -1,23 +1,19 @@
 package com.nks.khforeground;
 
-import android.app.Notification;
 import android.content.Intent;
 import android.content.Context;
 import android.app.Service;
-import android.os.Build;
 import android.os.IBinder;
 import android.os.Bundle;
-
-import org.apache.cordova.LOG;
+import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Random;
+
 
 
 public class KHForegroundService extends Service {
@@ -28,6 +24,7 @@ public class KHForegroundService extends Service {
 
     bleScanner blePlugin = new bleScanner();
     Notifications notifications = new Notifications();
+    JSONArray devicesFilterArray = new JSONArray();
 
     private boolean looperState = false;
     private boolean looperInit = false;
@@ -44,9 +41,11 @@ public class KHForegroundService extends Service {
             String action = intent.getAction();
             switch (action) {
                 case "START":
+                    Log.i(TAG, " --> START KH Service");
                     startPluginForegroundService(intent.getExtras());
                     break;
                 case "STOP":
+                    Log.i(TAG, " --> STOP KH Service");
                     stopForegroundService();
                     break;
             }
@@ -73,6 +72,9 @@ public class KHForegroundService extends Service {
     private void startPluginForegroundService(Bundle extras) {
         Context context = getApplicationContext();
         try {
+            String devicesFilter = extras.getString("foregroundDevices");
+
+            devicesFilterArray = new JSONArray(devicesFilter);
 
             JSONObject foregroundNotification = new JSONObject();
             foregroundNotification.put("NAME", " ");
@@ -90,7 +92,8 @@ public class KHForegroundService extends Service {
             startLooper();
 
         }catch (JSONException e){
-            System.out.println("SERVICE FAILED TO START, NOTIFICATION ERROR");
+            Log.e(TAG,"SERVICE FAILED TO START, NOTIFICATION ERROR");
+            
         }
     }
 
@@ -104,7 +107,7 @@ public class KHForegroundService extends Service {
                 scannedDevice.put("SCANNED", scannedDevice.getInt("SCANNED")-1);
                 if (scannedDevice.getInt("SCANNED")>0){
                     newPool.put(scannedDevice);
-                    //System.out.println("     Device #"+n+"  | MAC: "+scannedDevice.getString("MAC")+ " | NAME: "+scannedDevice.getString("NAME") + " | SCANNED: "+scannedDevice.getString("SCANNED")+" |"+ " RSSI: "+scannedDevice.getString("RSSI")+" |");
+                    Log.d(TAG,"     Device #"+n+"  | MAC: "+scannedDevice.getString("MAC")+ " | NAME: "+scannedDevice.getString("NAME") + " | SCANNED: "+scannedDevice.getString("SCANNED")+" |"+ " RSSI: "+scannedDevice.getString("RSSI")+" |");
                 }
             } catch (JSONException e) {
                 //error
@@ -140,12 +143,35 @@ public class KHForegroundService extends Service {
         return returnCode;
     }
 
+    private boolean isDeviceStored(JSONObject device){
+
+        try {
+            String deviceMac = device.getString("id");
+            for (int n = 0; n < devicesFilterArray.length(); n++) {
+                JSONObject storedDevice = devicesFilterArray.getJSONObject(n);
+                String storedDeviceMac = storedDevice.getString("bssid");
+                if (deviceMac.equals(storedDeviceMac)) {
+                    Log.d(TAG,"Device " + device.getString("id") + " FOUND in filter list.");
+                    return true;
+                }
+
+            }
+            Log.d(TAG,"Device " + device.getString("id") + " NOT EXIST in filter list.");
+        } catch (JSONException e) {
+            Log.e(TAG,"Filter search FAILED with error: "+e);
+            return false;
+        }
+
+        return false;
+    }
+
     private void addToBlePool(JSONObject scannedDevice){
 
         try {
 
             scannedDevice.put("SCANNED", SCANNED_EXPIRATION + 1);
-            if (!deviceExist(scannedDevice)){
+
+            if (!deviceExist(scannedDevice) && isDeviceStored(scannedDevice)){
                 if (scannedDevice.has("name")) {
                     scannedDevice.put("MAC", scannedDevice.getString("id"));
                     scannedDevice.put("NAME", scannedDevice.getString("name"));
@@ -157,10 +183,12 @@ public class KHForegroundService extends Service {
                     blePool.put(scannedDevice);
                     notifications.sendNotifications(blePool);
                 }
+            }else{
+                Log.d(TAG,"Device " + scannedDevice.getString("id") + " ignored.");
             }
 
         } catch (JSONException e) {
-            System.out.println("ERROR PARSING SCANNED DEVICE:" + e);
+            Log.e(TAG,"ERROR PARSING SCANNED DEVICE:" + e);
         }
     }
     private void initLooper(){
@@ -168,18 +196,14 @@ public class KHForegroundService extends Service {
         Runnable runnable = new Runnable() {
 
             public void run() {
-                //int ee = 0;
-                while (looperState) {
-                    //String s=String.valueOf(ee);
-                    //ee = ee + 1;
-                    //System.out.println("-----------------------------   RUNNING LOOP #" + ee + "  -----------------------------");
 
+                while (looperState) {
 
                     try {
                         blePlugin.execute("SCAN", mContext, mListener);
 
                     } catch (Exception e) {
-                        System.out.println(TAG+" -> Error while executing scan on bleScanner:" +e);
+                        Log.e(TAG, " -> Error while executing scan on bleScanner:" +e);
                     }
 
                     try {
@@ -201,12 +225,12 @@ public class KHForegroundService extends Service {
 
     private void stopLooper(){
         looperState = false;
-        System.out.println(" --> STOPPING LOOPER.");
+        Log.i(TAG," --> STOPPING LOOPER.");
     }
 
     private void startLooper(){
         looperState = true;
-        System.out.println(" --> STARTING LOOPER.");
+        Log.i(TAG," --> STARTING LOOPER.");
     }
 
 
@@ -238,14 +262,14 @@ public class KHForegroundService extends Service {
                         String rid = rhs.getString(sortKey);
                         return lid.compareTo(rid);
                     }catch (JSONException e){
-                        System.out.println("ERROR _2_ JSON SORT");
+                        Log.e(TAG,"ERROR _2_ JSON SORT");
                         return 0;
                     }
                 }
             });
             return new JSONArray(jsons);
         } catch (JSONException e) {
-            System.out.println("ERROR _1_ JSON SORT");
+            Log.e(TAG,"ERROR _1_ JSON SORT");
             return new JSONArray();
         }
     }
