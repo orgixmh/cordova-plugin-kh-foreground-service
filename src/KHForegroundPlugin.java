@@ -1,6 +1,8 @@
 package com.nks.khforeground;
 
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.Intent;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
@@ -10,6 +12,20 @@ import org.json.JSONObject;
 import android.os.Build;
 
 public class KHForegroundPlugin extends CordovaPlugin {
+
+    private static boolean isServiceRunningInForeground(Context context, Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                if (service.foreground) {
+                    return true;
+                }
+
+            }
+        }
+        return false;
+    }
+
     @Override
     public boolean execute (final String action, final JSONArray args, final CallbackContext command) throws JSONException {
 
@@ -29,12 +45,15 @@ public class KHForegroundPlugin extends CordovaPlugin {
                         .putExtra("unlockMessage", args.getString(1));
 
                 // Finally start the service
-                if (Build.VERSION.SDK_INT >= 26) {
-                    activity.getApplicationContext().startForegroundService(intent);
-                } else {
-                    activity.getApplicationContext().startService(intent);
-                }
+                if (isServiceRunningInForeground(activity.getApplicationContext(),KHForegroundService.class)) {
 
+                }else {
+                    if (Build.VERSION.SDK_INT >= 26) {
+                        activity.getApplicationContext().startForegroundService(intent);
+                    } else {
+                        activity.getApplicationContext().startService(intent);
+                    }
+                }
                 // Return success to cordova
                 command.success();
                 break;
@@ -46,10 +65,12 @@ public class KHForegroundPlugin extends CordovaPlugin {
                 intent.setAction("STOP");
 
                 // Stop the service
-                if (Build.VERSION.SDK_INT >= 26) {
-                    activity.getApplicationContext().startForegroundService(intent);
-                } else {
-                    activity.getApplicationContext().startService(intent);
+                if (isServiceRunningInForeground(activity.getApplicationContext(),KHForegroundService.class)) {
+                    if (Build.VERSION.SDK_INT >= 26) {
+                        activity.getApplicationContext().startForegroundService(intent);
+                    } else {
+                        activity.getApplicationContext().startService(intent);
+                    }
                 }
 
 
@@ -60,12 +81,16 @@ public class KHForegroundPlugin extends CordovaPlugin {
             //CHECK PENDING UNLOCKS ///////////////////////////////////////////////////////
             case "checkUnlock":
                 //Assuming that kh resuming so we need first to stop service
-                //intent.setAction("check");
+
+
                 intent.setAction("STOP");
-                if (Build.VERSION.SDK_INT >= 26) {
-                    activity.getApplicationContext().startForegroundService(intent);
-                } else {
-                    activity.getApplicationContext().startService(intent);
+
+                if (isServiceRunningInForeground(activity.getApplicationContext(),KHForegroundService.class)) {
+                    if (Build.VERSION.SDK_INT >= 26) {
+                        activity.getApplicationContext().startForegroundService(intent);
+                    } else {
+                        activity.getApplicationContext().startService(intent);
+                    }
                 }
 
                 //A little messy way to share data between classes, processes and threads --> NEED FIX
