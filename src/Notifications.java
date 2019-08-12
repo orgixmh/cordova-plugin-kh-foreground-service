@@ -62,6 +62,8 @@ public class Notifications {
             manager.deleteNotificationChannel("foreground.service.channel");
             channel = new NotificationChannel("foreground.service.channel", "KH Background Services", importance);
             channel.setDescription("Enables background connectivity with KH accessories.");
+            channel.setSound(null, null);
+            channel.setShowBadge(false);
             mContext.getSystemService(NotificationManager.class).createNotificationChannel(channel);
         }
 
