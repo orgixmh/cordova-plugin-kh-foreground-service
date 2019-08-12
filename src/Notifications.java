@@ -7,13 +7,10 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
-
 import com.nks.kh.R;
-
+import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,7 +27,8 @@ public class Notifications {
     public static final int FOREGROUND_NOTIFICATION = 0;
     public static final int DEVICE_NOTIFICATION = 1;
     public static final int ERROR_NOTIFICATION = 9;
-
+    private final static String TAG = Notifications.class.getSimpleName();
+    
     NotificationChannel channel;
     NotificationManager manager;
 
@@ -81,7 +79,7 @@ public class Notifications {
 
     public void cleanNotificationIDs(int startID){
 
-        System.out.println("REMOVING NOTIFICATIONS WITH ID BIGGER THAN "+ startID +".");
+        Log.d(TAG,"REMOVING NOTIFICATIONS WITH ID BIGGER THAN "+ startID +".");
         while(startID < 10){
             //if (notificationExist(startID)){
                 removeNotification(startID);
@@ -121,7 +119,7 @@ public class Notifications {
                             if (notMac != null && devMac!=null){
                                 if ( notMac.equals(devMac)) {
                                      sendNotification = false;
-                                     //System.out.println("ABORT NOTIFICATION SEND (EXIST WITH SAME ID: "+currentID+")");
+                                     Log.d(TAG,"ABORT NOTIFICATION SEND (EXIST WITH SAME ID: "+currentID+")");
                                 }
                             }
                         }
@@ -129,7 +127,7 @@ public class Notifications {
                         sendNotification = false;
                     }
                     if (sendNotification){
-                        //System.out.println("SENDIND NOTIFICATION WITH ID: "+currentID);
+                        Log.d(TAG,"SENDIND NOTIFICATION WITH ID: "+currentID);
                         manager.notify(currentID, deviceNotification);
                     }
                     scanPool.put(scanPool.length() - n -1, scanObject);
@@ -183,7 +181,7 @@ public class Notifications {
                 notificationIntent.putExtra("type", FOREGROUND_NOTIFICATION);
 
                 pendingIndentAction = PendingIntent.FLAG_UPDATE_CURRENT;
-                System.out.println("NOTIFICATION ("+notificationID+")-> notType"+notType);
+                Log.d(TAG,"NOTIFICATION ("+notificationID+")-> notType"+notType);
 
             }else{
 
@@ -196,8 +194,7 @@ public class Notifications {
                 notificationIntent.putExtra("unlockDeviceMac", notMac);
                 notificationIntent.putExtra("unlockDeviceName", notName);
                 notificationIntent.putExtra("type", DEVICE_NOTIFICATION);
-
-                System.out.println("NOTIFICATION ("+notificationID+")-> notType"+notType +"  NAME:"+notName+"  MAC:" +notMac);
+                Log.d(TAG,"NOTIFICATION ("+notificationID+")-> notType"+notType +"  NAME:"+notName+"  MAC:" +notMac);
             }
 
             notificationData.put("ID",notificationID );
