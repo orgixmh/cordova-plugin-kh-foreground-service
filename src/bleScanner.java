@@ -9,6 +9,8 @@ import android.content.Context;
 import android.os.Build;
 
 import com.megster.cordova.ble.central.*;
+
+import org.apache.cordova.LOG;
 import org.apache.cordova.PluginResult;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -23,9 +25,9 @@ public class bleScanner implements BluetoothAdapter.LeScanCallback {
     private Context context;
 
     private static final String STOP_SCAN = "stopScan";
-    private static final String TAG = "bleScanner";
     private CallbacksHelper mListener;
     private BluetoothAdapter bluetoothAdapter;
+    private final static String TAG = bleScanner.class.getSimpleName();
 
     // key is the MAC Address
     private Map<String, Peripheral> peripherals = new LinkedHashMap<String, Peripheral>();
@@ -42,7 +44,7 @@ public class bleScanner implements BluetoothAdapter.LeScanCallback {
         }
 
         if (bluetoothAdapter == null) {
-            System.out.println("BT_PLUGIN: BT ERROR");
+            LOG.d(TAG,"BT_PLUGIN: BT ERROR");
             return false;
         }
 
@@ -60,7 +62,7 @@ public class bleScanner implements BluetoothAdapter.LeScanCallback {
     private void scan() {
 
         if (bluetoothAdapter.isDiscovering()) {
-            System.out.println("Tried to start scan while already running.");
+            LOG.d(TAG,"Tried to start scan while already running.");
             return;
         }
 
@@ -70,7 +72,7 @@ public class bleScanner implements BluetoothAdapter.LeScanCallback {
             Peripheral device = entry.getValue();
             boolean connecting = device.isConnecting();
             if (connecting){
-                System.out.println("Not removing connecting device: " + device.getDevice().getAddress());
+                LOG.d(TAG,"Not removing connecting device: " + device.getDevice().getAddress());
             }
             if(!entry.getValue().isConnected() && !connecting) {
                 iterator.remove();
@@ -91,7 +93,7 @@ public class bleScanner implements BluetoothAdapter.LeScanCallback {
                     new java.util.TimerTask() {
                         @Override
                         public void run() {
-                            System.out.println("Stopping Scan");
+                            LOG.d(TAG,"Stopping Scan");
                             bleScanner.this.bluetoothAdapter.stopLeScan(bleScanner.this);
                         }
                     },
@@ -119,7 +121,7 @@ public class bleScanner implements BluetoothAdapter.LeScanCallback {
             if (mListener != null) {
                 mListener.onCallback(peripheral.asJSONObject());
             }else{
-                System.out.println("bleScanner -> mListener is null, callBack attach faild.");
+                LOG.d(TAG,"bleScanner -> mListener is null, callBack attach faild.");
             }
 
         } else {
